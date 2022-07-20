@@ -1,0 +1,36 @@
+import System
+import System.Collections.Generic
+import System.Text
+import BankingApp
+import System.Linq
+import System.Linq.Expressions
+
+namespace BankingApp
+
+	public class UiHelper
+
+		;;; Display options and get user entry
+		public static method getOption, @string
+			record
+				inputKey,	int
+			endrecord
+		proc
+			Console.WriteLine("Select option:")
+			Console.WriteLine("    Type Account to Add Account")
+			Console.WriteLine("    Type Transaction to Make Transaction")
+			Console.WriteLine("    Type List to List Account Transactions")
+			Console.WriteLine("    Type Exit to Exit")
+			data inputValue = Console.ReadLine()
+			if (inputValue == "Account" || inputValue == "Transaction" || inputValue == "Exit" || inputValue == "List")
+			begin
+				mreturn inputValue
+			end
+			
+			Console.WriteLine("Please Select A Valid Option")
+			mreturn UiHelper.getOption()
+
+		endmethod
+
+	endclass
+
+endnamespace

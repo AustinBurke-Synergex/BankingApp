@@ -1,0 +1,149 @@
+import System
+import System.Collections.Generic
+import System.Text
+import System.Linq
+
+namespace BankingApp
+
+	public class Transaction
+		public sourceId			,int
+		public destinationId	,int
+		public amount			,int
+		public notes			,@string
+		public static transations	,@List<@Transaction>, new List<Transaction>()
+
+		public method Transaction
+			sourceIdIn		,int
+			destinationIdIn	,int
+			amountIn		,int
+			notesIn			,@string
+			endparams
+		proc
+			sourceId = sourceIdIn
+			destinationId = destinationIdIn
+			amount = amountIn
+			notes = notesIn
+		endmethod
+		
+		;;; Get required information and create transaction object
+		public static method AddTransaction, @Transaction
+		proc
+			Console.WriteLine("Add Transaction")
+			Console.WriteLine("Enter Source Account Id")
+			data source = Console.ReadLine()
+			Console.WriteLine("Enter Destination Account Id")
+			data destination = Console.ReadLine()
+			Console.WriteLine("Enter Amount")
+			data amount = Console.ReadLine()
+			Console.WriteLine("Enter Transaction Notes")
+			data notes = Console.ReadLine()
+			data newTransaction = new @Transaction(Convert.ToInt32(source), Convert.ToInt32(destination), Convert.ToInt32(amount), notes)
+			mreturn newTransaction
+		endmethod
+
+		;;; Process a Transaction
+		public static method MakeTransaction, void
+			newTransaction,	@Transaction
+			endparams
+			record
+				sourceAccount,	@Account
+				destinationAccount,	@Account
+			endrecord
+		proc
+			Account.accountList.TryGetValue(newTransaction.sourceId, sourceAccount)
+			Account.accountList.TryGetValue(newTransaction.destinationId, destinationAccount)
+			sourceAccount.balance -= newTransaction.amount
+			destinationAccount.balance += newTransaction.amount
+			transations.Add(newTransaction)
+		endmethod
+
+		;;; Create and return a delegate function for the creation of a transaction
+		public static method CreateTransaction, @Func<Transaction>
+			dSourceId		,int
+			dDestinationId	,int
+			dAmount			,int
+			dNotes			,@string
+			endparams
+			record
+				transactionDelegate	,@Func<Transaction>
+				rand				,@Random
+			endrecord
+		proc
+			lambda transactionDel() 
+			begin
+				rand = new @Random()
+				if (rand.Next(1,101) .mod. 10 == 0)
+					throw new Exception("Transaction Creation Failed")
+				mreturn new Transaction(dSourceId, dDestinationId, dAmount, dNotes)
+			end
+			transactionDelegate = transactionDel
+			mreturn transactionDelegate
+		endmethod
+
+		;;; Bulk process delegate transactions
+		public static method BulkProcessTransactions, void
+			transactionList	,@List<Func<Transaction>>
+			endparams
+			record
+				transactionDelegate	,@Func<Transaction>
+				validTransactions	,@List<Transaction>
+				validTransaction	,@Transaction
+			endrecord
+		proc
+			validTransactions = new List<Transaction>()
+			try
+			begin
+				foreach transactionDelegate in transactionList
+					validTransactions.Add(transactionDelegate())
+				foreach validTransaction in validTransactions
+					MakeTransaction(validTransaction)
+			end
+			catch (e, @Exception)
+			begin
+				Console.WriteLine("Transaction Batch Failed")
+			end
+			endtry
+		endmethod
+
+		;;; Custom output for listing transactions from a given source
+		public method DisplaySourceTransaction, void
+		proc
+			Console.WriteLine("Account " + sourceId.ToString() + " sent $" + amount.ToString() + " to account " + destinationId.ToString() + " with note:") 
+			Console.WriteLine(notes)
+		endmethod
+
+		;;; Custom output for listing transactions to a given destination
+		public method DisplayDestinationTransaction, void
+		proc
+			Console.WriteLine("Account " + sourceId.ToString() + " recieved $" + amount.ToString() + " from account " + destinationId.ToString() + " with note:") 
+			Console.WriteLine(notes)
+		endmethod
+
+		;;; Display all transactions involving a given account
+		public static method ListTransactions, void
+			endparams
+			record
+				currentTransaction,	@KeyValuePair<int, @Transaction>
+				validTransaction, @Transaction
+			endrecord
+		proc
+			Console.WriteLine("Enter Desired Account Id")
+			data accountId = Convert.ToInt32(Console.ReadLine())
+			
+			lambda getTransaction(innerTrans)
+			begin
+				mreturn innerTrans.sourceId == accountId || innerTrans.destinationId == accountId
+			end
+
+			foreach validTransaction in Transaction.transations.Where(getTransaction)
+			begin
+				if validTransaction.sourceId == accountId
+					validTransaction.DisplaySourceTransaction()
+				if validTransaction.destinationId == accountId
+					validTransaction.DisplayDestinationTransaction()
+			end
+
+			endmethod
+	endclass
+
+endnamespace

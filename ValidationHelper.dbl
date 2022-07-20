@@ -1,0 +1,22 @@
+import System
+import System.Collections.Generic
+import System.Text
+
+
+namespace BankingApp
+
+	public class ValidationHelper
+		
+		;;; Validate input for monetary fields
+		public static method ValidateMoney, boolean
+			userInput,	@string
+			endparams
+			record
+				inputValue,	double
+			endrecord
+		proc
+			mreturn double.TryParse(userInput, inputValue)
+		endmethod
+	endclass
+
+endnamespace

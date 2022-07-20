@@ -1,0 +1,35 @@
+import System
+import BankingApp
+import System.Collections.Generic
+
+main
+	record
+		option, @string
+		newAccount, @Account
+		newTransaction, @Transaction
+	endrecord
+proc
+	while (option != "Exit")
+	begin
+		option = UiHelper.getOption()
+		if (option == "Account")
+		begin
+			try
+			begin
+				Account.CreateAccount()
+			end
+			catch (e, @Exception)
+			begin
+				
+			end
+			endtry
+		end
+		if (option == "Transaction")
+		begin
+			newTransaction = Transaction.AddTransaction()
+			Transaction.MakeTransaction(newTransaction)
+		end
+		if (option == "List")
+			Transaction.ListTransactions()
+	end
+endmain

@@ -1,0 +1,77 @@
+import System
+import System.Collections.Generic
+import System.Text
+
+
+namespace BankingApp
+
+	public class Account
+		public accountHolder, @string
+		public name, @string
+		public address, @string
+		public balance, int
+		public static accountList, @Dictionary<int, @BankingApp.Account>, new Dictionary<int, Account>()
+
+		public method Account
+			accountHolderIn, @string
+			nameIn, @string
+			addressIn, @string
+			balanceIn, int
+			endparams
+		proc
+			accountHolder = accountHolderIn
+			name = nameIn
+			address = addressIn
+			balance = balanceIn
+		endmethod
+
+		;;; Get required information and create account object
+		public static method CreateAccount, void
+			record
+				newAccount,	@Account
+				newAccountKey, int
+			endrecord
+		proc
+			Console.WriteLine("Create an Account")
+			Console.WriteLine("Enter Account Holder Name")
+			data accountHolderName = Console.ReadLine()
+			Console.WriteLine("Enter Account Name")
+			data accountName = Console.ReadLine()
+			Console.WriteLine("Enter Address")
+			data address = Console.ReadLine()
+			Console.WriteLine("Enter Starting Balance")
+			data balance = Console.ReadLine()
+			while (!ValidationHelper.ValidateMoney(balance))
+			begin
+				Console.WriteLine("Please Enter a Valid Balance")
+				balance = Console.ReadLine()
+			end
+			newAccount = new Account(accountHolderName, accountName, address, Convert.ToInt32(balance))
+			newAccountKey = AddAccount(newAccount)
+			Console.WriteLine("Added Account with key : " + newAccountKey.ToString())
+			DisplayAccount(newAccount)
+		endmethod
+
+		;;; Add given account to static account list
+		public static method AddAccount, int
+			newAccount,	@Account
+			endparams
+		proc
+			data accountKey = accountList.Count
+			accountList.Add(accountKey, newAccount)
+			mreturn accountKey
+		endmethod
+
+		;;; Display information for a given account
+		public static method DisplayAccount, void
+			inAccount, @Account	
+			endparams
+		proc
+			Console.WriteLine("Account Holder: " + inAccount.accountHolder)
+			Console.WriteLine("Account Name: " + inAccount.name)
+			Console.WriteLine("Account Address: " + inAccount.address)
+			Console.WriteLine("Account Balance: " + inAccount.balance.ToString())
+		endmethod
+	endclass
+
+endnamespace
